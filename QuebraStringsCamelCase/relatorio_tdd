@@ -1,0 +1,134 @@
+# Descrição do processo de TDD
+
+## Ciclo 1
+
+Criação do teste para a função que divide as palavras em camelCase.
+
+```
+@Test
+    void testWordSplit() {
+        List<String> list = Arrays.asList("camel", "Case");
+        Assertions.assertEquals(list, Main.converterCamelCase("camelCase"));
+    }
+```
+
+Implementação da função:
+
+```
+public static List<String> converterCamelCase(String original){
+
+        return Arrays.asList(original.split("(?=[A-Z][^A-Z])"));
+    }
+```
+
+Testes passaram.
+
+---
+
+## Ciclo 2
+
+Criação do teste para palavras que tem números:
+
+```
+ void testWordNumbersSplit(){
+        List<String> list = Arrays.asList("recupera", "10", "primeiros");
+        Assertions.assertEquals(list, Main.converterCamelCase("recupera10Primeiros"));
+    }
+```
+
+Mudanças na função principal:
+
+```
+static List<String> converterCamelCase(String original){
+        return Arrays.asList(original.split("(?=[0-9A-Z][^A-Z])"));
+    }
+```
+
+Testes passaram.
+
+---
+
+## Ciclo 3
+
+Criação do teste para palavras inválidas:
+
+```
+ @Test
+    void testInvalidString() throws InvalidTypeException {
+        String word1 = "10Primeiros";
+        String word2 = "nome#Composto";
+
+        Main.validateString(word1);
+        Main.validateString(word2);
+    }
+```
+
+Implementação da função que valida as palavras:
+
+```
+     static void validateString(String original) throws InvalidTypeException {
+
+        Pattern p = Pattern.compile("^([0-9]*)|(\\W)");
+        Matcher m = p.matcher(original);
+
+        if (m.find())
+            throw new InvalidTypeException();
+    }
+```
+
+Alteração da função de teste:
+
+```
+  void testInvalidString() {
+         String word1 = "10Primeiros";
+         String word2 = "nome#Composto";
+         assertThrows(InvalidTypeException.class,
+             ()->{
+                 Main.validateString(word1);
+                 Main.validateString(word2);
+             });
+     }
+```
+
+Testes passaram.
+
+---
+
+## Ciclo 4
+
+Criação do teste para apenas 1 palavra:
+
+```
+@Test
+    void testOneWordOnly(){
+        List<String> list1 = Arrays.asList("nome");
+        List<String> list2 = Arrays.asList("Nome");
+        List<String> list3 = Arrays.asList("CPF");
+
+        Assertions.assertEquals(list1, Main.converterCamelCase("nome"));
+        Assertions.assertEquals(list2, Main.converterCamelCase("nome"));
+        Assertions.assertEquals(list3, Main.converterCamelCase("CPF"));
+    }
+```
+
+ Alteração dos casos de teste pra palavras com letras maiúsculas no meio:
+
+```
+  void testWordSplit() {
+        List<String> list1 = Arrays.asList("camel", "Case");
+        List<String> list2 = Arrays.asList("numero", "CPF", "contribuinte");
+        List<String> list3 = Arrays.asList("numero", "CPF");
+
+        Assertions.assertEquals(list1, Main.converterCamelCase("camelCase"));
+        Assertions.assertEquals(list2, Main.converterCamelCase("numeroCPFContribuinte"));
+        Assertions.assertEquals(list3, Main.converterCamelCase("numeroCPF"));
+    }
+ ```
+
+ Testes não passaram, mudança da expressão regular que identifica as palavras em camelCase:
+
+```
+List<String> splittedString =  Arrays.asList(original.split("(?<=[a-z])(?=[A-Z0-9])|(?<=[A-Z0-9])(?=[A-Z][a-z])"));
+```
+
+Todos os testes passaram.
